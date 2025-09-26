@@ -20,7 +20,7 @@ router.post("/categories", protect, authorize("superAdmin"), createCategory);
 router.get("/categories", getCategories);
 
 // BLOG ROUTES
-router.get("/", getBlogs);
+router.get("/", protect, getBlogs);
 router.get("/:slug", getBlogBySlug);
 
 router.post("/", protect, authorize("superAdmin"), upload.single("thumbnail"), createBlog);

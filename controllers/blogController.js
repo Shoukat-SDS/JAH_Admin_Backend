@@ -8,10 +8,17 @@ export const createBlog = async (req, res) => {
   try {
     const { title, content, tags, category, published } = req.body;
 
-    // ✅ Unique slug
-    const baseSlug = slugify(title, { lower: true, strict: true });
-    const uniqueSuffix = crypto.randomBytes(3).toString("hex"); 
-    const slug = `${baseSlug}-${uniqueSuffix}`;
+    // ✅ Check if title already exists
+    const existingBlog = await Blog.findOne({ title });
+    if (existingBlog) {
+      return res.status(400).json({
+        success: false,
+        message: "This title already exists. Please choose a different title.",
+      });
+    }
+
+    // ✅ Slug (automatic from title)
+    const slug = slugify(title, { lower: true, strict: true });
 
     const thumbnail = req.file ? req.file.path : "";
 
@@ -25,6 +32,7 @@ export const createBlog = async (req, res) => {
       }
     }
 
+    // ✅ Save blog
     const blog = await Blog.create({
       title,
       slug,
@@ -32,7 +40,7 @@ export const createBlog = async (req, res) => {
       tags: tagsArray,
       category,
       thumbnail,
-      published
+      published,
     });
 
     res.status(201).json({ success: true, data: blog });
@@ -43,31 +51,27 @@ export const createBlog = async (req, res) => {
 };
 
 // GET ALL (Public vs Admin)
-// export const getBlogs = async (req, res) => {
-//   const filter = req.user && req.user.role === "superAdmin" ? {} : { published: false };
-//   const blogs = await Blog.find(filter).populate("category");
-//   res.json(blogs);
-// };
-
 export const getBlogs = async (req, res) => {
   try {
     let filter = {};
 
-    // Agar user exist karta hai aur role superAdmin hai → sab blogs dikhenge
-    if (!req.user || req.user.role !== "superAdmin") {
-      filter = { published: true }; // public user ke liye sirf published blogs
+    if (req.user && req.user.role === "superAdmin") {
+      filter = {}; // SuperAdmin → sab blogs
+    } else {
+      filter = { published: true }; // Normal user → sirf published
     }
 
     const blogs = await Blog.find(filter)
       .populate("category")
-      .sort({ createdAt: -1 }); // optional: newest first
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, data: blogs });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+    console.error("❌ Error fetching blogs:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // GET SINGLE BLOG BY SLUG
 export const getBlogBySlug = async (req, res) => {
@@ -87,7 +91,14 @@ export const updateBlog = async (req, res) => {
     blog.slug = slugify(title, { lower: true, strict: true });
   }
   if (content) blog.content = content;
-  if (tags) blog.tags = tags.split(",");
+  // ✅ Handle tags properly
+  if (tags) {
+    if (typeof tags === "string") {
+      blog.tags = tags.split(",").map(tag => tag.trim());
+    } else if (Array.isArray(tags)) {
+      blog.tags = tags;
+    }
+  }
   if (category) blog.category = category;
   if (typeof published !== "undefined") blog.published = published;
   if (req.file) blog.thumbnail = req.file.path;
@@ -100,11 +111,18 @@ export const updateBlog = async (req, res) => {
 
 // DELETE
 export const deleteBlog = async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-  if (!blog) return res.status(404).json({ message: "Blog not found" });
+  try {
+    const blog = await Blog.findByIdAndDelete(req.params.id);
 
-  await blog.remove();
-  res.json({ message: "Blog deleted successfully" });
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    res.json({ success: true, message: "Blog deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // CATEGORY CRUD
