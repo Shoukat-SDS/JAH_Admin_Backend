@@ -73,11 +73,15 @@ import aboutRoutes from './routes/aboutRoutes.js';
 import departmentRoutes from './routes/departmentRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import subscriberRoutes from "./routes/subscriberRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 app.use('/api/auth', authRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use("/api/subscribers", subscriberRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Error handler
 app.use(errorHandler);
