@@ -26,7 +26,13 @@ export const updateAbout = async (req, res) => {
 
     let about = await About.findOne();
 
-    const images = req.files ? req.files.map((file) => file.path) : about?.images || [];
+    // file upload handling
+    let images = about?.images || {};
+    if (req.files) {
+      if (req.files.large) images.large = req.files.large[0].path;
+      if (req.files.small1) images.small1 = req.files.small1[0].path;
+      if (req.files.small2) images.small2 = req.files.small2[0].path;
+    }
 
     if (about) {
       about.intro = intro || about.intro;

@@ -31,4 +31,11 @@ const upload = multer({
   fileFilter,
 });
 
+upload.fields([
+  { name: 'large', maxCount: 1 },
+  { name: 'small1', maxCount: 1 },
+  { name: 'small2', maxCount: 1 },
+])
+
+
 export default upload;

@@ -47,12 +47,11 @@ app.use(cors({
     // console.log('🌍 Incoming request origin:', origin);
 
     if (!origin) {
-      console.log('⚠️ No origin header (maybe Postman or curl)');
+      // console.log('⚠️ No origin header (maybe Postman or curl)');
       return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {
-      // console.log('✅ Allowed origin:', origin);
       callback(null, true);
     } else {
       // console.error('❌ Blocked origin:', origin);
@@ -75,6 +74,8 @@ import projectRoutes from './routes/projectRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import subscriberRoutes from "./routes/subscriberRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import donationPaymentRoutes from "./routes/donationPaymentRoutes.js";
+import donationItemRoutes from "./routes/donationItemRoutes.js";
 app.use('/api/auth', authRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/departments', departmentRoutes);
@@ -82,6 +83,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use("/api/subscribers", subscriberRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/donations", donationPaymentRoutes);
+app.use("/api/donation-item", donationItemRoutes);
 
 // Error handler
 app.use(errorHandler);

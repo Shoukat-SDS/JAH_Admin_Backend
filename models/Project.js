@@ -21,8 +21,8 @@ const ProjectSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Ongoing", "Completed"],
-    default: "Ongoing"
+    enum: ['planned', 'in-progress', 'completed', 'on-hold'],
+    default: 'planned'
   },
   featured: {
     type: Boolean,

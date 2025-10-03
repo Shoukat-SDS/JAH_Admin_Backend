@@ -12,11 +12,11 @@ const AboutSchema = new mongoose.Schema({
   vision: {
     type: String,
   },
-  images: [
-    {
-      type: String, // store image URLs or file paths
-    },
-  ],
+  images: {
+    large: { type: String },   // one large image
+    small1: { type: String },  // first small image
+    small2: { type: String },  // second small image
+  },
   updatedAt: {
     type: Date,
     default: Date.now,
